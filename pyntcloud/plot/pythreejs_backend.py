@@ -46,6 +46,7 @@ def get_camera_pythreejs(centroid, xyz, width, height):
     camera = pythreejs.PerspectiveCamera(
         fov=90,
         aspect=width / height,
+        far=2**24,
         position=tuple(centroid + [0, abs(xyz.max(0)[1]), abs(xyz.max(0)[2]) * 1.5]),
         up=[0, 0, 1])
     camera.lookAt(tuple(centroid))
