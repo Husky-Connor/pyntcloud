@@ -641,7 +641,9 @@ class PyntCloud(object):
             return_scene=False,
             output_name="pyntcloud_plot",
             elev=0.,
-            azim=90.
+            azim=90.,
+            horiz_fov=74,
+            vert_fov=49
     ):
 
         """Visualize a PyntCloud  using different backends.
@@ -697,6 +699,10 @@ class PyntCloud(object):
             Elevation angle in the z plane. Used for matplotlib
         azim: float
             Azimuth angle in the x,y plane.
+        horiz_fov: int
+            Horizontal fov angle
+        vert_fov: int
+            Vertical fov angle
         """
         args = locals()
         backend = args.pop("backend")

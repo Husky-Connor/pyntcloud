@@ -37,13 +37,16 @@ def plot_with_threejs(cloud, **kwargs):
     src = "{}/{}".format(BASE_PATH, "points.html")
     dst = "{}/{}".format(os.getcwd(), "{}.html".format(kwargs["output_name"]))
 
-    camera_position = (cloud.xyz.max(0) + abs(cloud.xyz.max(0))).tolist()
-    look_at = cloud.xyz.mean(0).tolist()
+    camera_position = [0,-10,0] #(cloud.xyz.max(0) + abs(cloud.xyz.max(0))).tolist()
+    look_at = [0,2**14,0] #cloud.xyz.mean(0).tolist()
 
     dest_directory = Path(os.getcwd())
     config_file_path = dest_directory / (kwargs["output_name"] + '.config.json')
 
     polylines = kwargs["polylines"] or {}
+    horiz_fov = kwargs["horiz_fov"]
+    vert_fov = kwargs["vert_fov"]
+
     config_obj = {
         "filename": kwargs["output_name"],
         "camera_position": camera_position,
@@ -52,6 +55,8 @@ def plot_with_threejs(cloud, **kwargs):
         "point_opacity": 0.9,
         "polylines_points": list(polylines.values()),
         "polylines_colors": list(polylines.keys()),
+        "horiz_fov": horiz_fov,
+        "vert_fov": vert_fov,
     }
 
     with config_file_path.open('w') as config_file:

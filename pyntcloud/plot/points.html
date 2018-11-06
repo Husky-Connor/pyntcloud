@@ -87,7 +87,8 @@
             //
             // Lines
             //
-            drawLines(scene, config.polylines_points, config.polylines_colors)
+            drawSceneOutline(scene, config);
+
             //
             // CAMERA
             //
@@ -136,7 +137,7 @@
                         opacity: config.point_opacity,
                     });
                     figure = new THREE.Points(geometry, material);
-                    var figureSize = gui.add(parameters, 'size').min(0.001).max(1).step(0.001).name("Point Size").listen();
+                    var figureSize = gui.add(parameters, 'size').min(0.001).max(200).step(0.001).name("Point Size").listen();
                     figureSize.onChange((value) => {
                         figure.material.size = value;
                     });
@@ -155,7 +156,7 @@
             // RENDERER
             //
             renderer = new THREE.WebGLRenderer({
-                antialias: false,
+                antialias: true,
 				preserveDrawingBuffer: true
             });
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -233,6 +234,92 @@
             throw Error("lines and colors must be the same length");
           }
           zip(lines, colors).forEach(lc => scene.add(makeThreeLine(lc[0], lc[1])))
+        }
+
+        function drawSceneOutline(scene, config) {
+            // Math Stuff
+            var scaling = Math.pow(2,14);
+            var horiz_fov = config.horiz_fov;
+            var vert_fov = config.vert_fov;
+            var x = scaling * Math.sin(horiz_fov*Math.PI/360)
+            var z = scaling * Math.tan(vert_fov*Math.PI/360)
+            var y = scaling * Math.cos(horiz_fov*Math.PI/360)
+
+            // Materials
+            var white_mat = new THREE.LineBasicMaterial( { color: 0xffffff } );
+            var gray_mat = new THREE.LineBasicMaterial( { color: 0x9a9a9a } );
+            var red_mat = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+            var green_mat = new THREE.LineBasicMaterial( { color: 0x008000 } );
+            var blue_mat = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+            // Geometries & Vertices
+            var x_axis_geo = new THREE.Geometry();
+            x_axis_geo.vertices.push(new THREE.Vector3( 0, 0, 0) );
+            x_axis_geo.vertices.push(new THREE.Vector3( 1000, 0, 0) );
+            var y_axis_geo = new THREE.Geometry();
+            y_axis_geo.vertices.push(new THREE.Vector3( 0, 0, 0) );
+            y_axis_geo.vertices.push(new THREE.Vector3( 0, 0, 1000) );
+            var z_axis_geo = new THREE.Geometry();
+            z_axis_geo.vertices.push(new THREE.Vector3( 0, 0, 0) );
+            z_axis_geo.vertices.push(new THREE.Vector3( 0, 1000, 0) );
+            var c_1_geometry = new THREE.Geometry();
+            c_1_geometry.vertices.push(new THREE.Vector3( 0, 0, 0) );
+            c_1_geometry.vertices.push(new THREE.Vector3( x, y, z) );
+            var c_2_geometry = new THREE.Geometry();
+            c_2_geometry.vertices.push(new THREE.Vector3( 0, 0, 0) );
+            c_2_geometry.vertices.push(new THREE.Vector3( -x, y, z) );
+            var c_3_geometry = new THREE.Geometry();
+            c_3_geometry.vertices.push(new THREE.Vector3( 0, 0, 0) );
+            c_3_geometry.vertices.push(new THREE.Vector3( x, y, -z) );
+            var c_4_geometry = new THREE.Geometry();
+            c_4_geometry.vertices.push(new THREE.Vector3( 0, 0, 0) );
+            c_4_geometry.vertices.push(new THREE.Vector3( -x, y, -z) );
+            var box_1_geometry = new THREE.Geometry();
+            box_1_geometry.vertices.push(new THREE.Vector3( x, y, z) );
+            box_1_geometry.vertices.push(new THREE.Vector3( -x, y, z) );
+            box_1_geometry.vertices.push(new THREE.Vector3( -x, y, -z) );
+            box_1_geometry.vertices.push(new THREE.Vector3( x, y, -z) );
+            box_1_geometry.vertices.push(new THREE.Vector3( x, y, z) );
+            var box_2_geometry = new THREE.Geometry();
+            box_2_geometry.vertices.push(new THREE.Vector3( x/4, y/4, z/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( -x/4, y/4, z/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( -x/4, y/4, -z/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( x/4, y/4, -z/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( x/4, y/4, z/4) );
+            var box_3_geometry = new THREE.Geometry();
+            box_3_geometry.vertices.push(new THREE.Vector3( x/2, y/2, z/2) );
+            box_3_geometry.vertices.push(new THREE.Vector3( -x/2, y/2, z/2) );
+            box_3_geometry.vertices.push(new THREE.Vector3( -x/2, y/2, -z/2) );
+            box_3_geometry.vertices.push(new THREE.Vector3( x/2, y/2, -z/2) );
+            box_3_geometry.vertices.push(new THREE.Vector3( x/2, y/2, z/2) );
+            var box_4_geometry = new THREE.Geometry();
+            box_2_geometry.vertices.push(new THREE.Vector3( x*3/4, y*3/4, z*3/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( -x*3/4, y*3/4, z*3/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( -x*3/4, y*3/4, -z*3/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( x*3/4, y*3/4, -z*3/4) );
+            box_2_geometry.vertices.push(new THREE.Vector3( x*3/4, y*3/4, z*3/4) );
+            // Make & Add lines
+            var x_line = new THREE.Line( x_axis_geo, red_mat );
+            scene.add(x_line);
+            var y_line = new THREE.Line( y_axis_geo, green_mat );
+            scene.add(y_line);
+            var z_line = new THREE.Line( z_axis_geo, blue_mat );
+            scene.add(z_line);
+            var c_1_line = new THREE.Line( c_1_geometry, white_mat );
+            scene.add(c_1_line);
+            var c_2_line = new THREE.Line( c_2_geometry, white_mat );
+            scene.add(c_2_line);
+            var c_3_line = new THREE.Line( c_3_geometry, white_mat );
+            scene.add(c_3_line);
+            var c_4_line = new THREE.Line( c_4_geometry, white_mat );
+            scene.add(c_4_line);
+            var box_1_line = new THREE.Line( box_1_geometry, white_mat);
+            scene.add(box_1_line);
+            var box_2_line = new THREE.Line( box_2_geometry, gray_mat);
+            scene.add(box_2_line);
+            var box_3_line = new THREE.Line( box_3_geometry, gray_mat);
+            scene.add(box_3_line);
+            var box_4_line = new THREE.Line( box_4_geometry, gray_mat);
+            scene.add(box_4_line);
         }
     </script>
 </body>

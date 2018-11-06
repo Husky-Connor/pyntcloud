@@ -47,9 +47,9 @@ def get_camera_pythreejs(centroid, xyz, width, height):
         fov=90,
         aspect=width / height,
         far=2**24,
-        position=tuple(centroid + [0, abs(xyz.max(0)[1]), abs(xyz.max(0)[2]) * 1.5]),
+        position=tuple([0,-10,0]),#tuple(centroid + [0, abs(xyz.max(0)[1]), abs(xyz.max(0)[2]) * 1.5]),
         up=[0, 0, 1])
-    camera.lookAt(tuple(centroid))
+    camera.lookAt([0,2**14,0])#tuple(centroid))
     return camera
 
 
@@ -108,6 +108,7 @@ def plot_with_pythreejs(cloud, **kwargs):
             scene=scene,
             camera=camera,
             controls=controls,
+            antialias=True,
             width=kwargs["width"],
             height=kwargs["height"])
 
